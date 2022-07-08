@@ -45,8 +45,8 @@ $titleMinuscula = strtolower($nameModule); ?>
 
 
 
-<link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
-<link href="http://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,600" rel="stylesheet" type="text/css">
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300italic,400,600" rel="stylesheet" type="text/css">
 
 <!-- Estilos personalizados deben ir en main.css o abajo de esta línea -->
 <link rel="stylesheet" href="<?php echo CSS . 'main.css?v=' . get_version(); ?>">
