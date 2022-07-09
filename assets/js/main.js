@@ -90,9 +90,41 @@ $(document).ready(function () {
     }
   });
 
+  $('#insertIpt-batch-income').select2({
+    theme: 'bootstrap-5',
+    dropdownParent: $('#mdAdd-income'),
+    width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+    placeholder: $(this).data('placeholder'),
+    allowClear: true,
+    "language": {
+      "noResults": function () {
+        return "No se han encontrado resultados <a href='#' class='btn btn-danger'>úsalo de todos modos</a>";
+      }
+    },
+    escapeMarkup: function (markup) {
+      return markup;
+    }
+  });
+
   $('#insertIpt-product-output').select2({
     theme: 'bootstrap-5',
     dropdownParent: $('#mdAdd-output'),
+    width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
+    placeholder: $(this).data('placeholder'),
+    allowClear: true,
+    "language": {
+      "noResults": function () {
+        return "No se han encontrado resultados <a href='#' class='btn btn-danger'>úsalo de todos modos</a>";
+      }
+    },
+    escapeMarkup: function (markup) {
+      return markup;
+    }
+  });
+
+  $('#insertIpt-batch-income').select2({
+    theme: 'bootstrap-5',
+    dropdownParent: $('#mdAdd-income'),
     width: $(this).data('width') ? $(this).data('width') : $(this).hasClass('w-100') ? '100%' : 'style',
     placeholder: $(this).data('placeholder'),
     allowClear: true,
@@ -142,6 +174,45 @@ $(document).ready(function () {
         wrapper.waitMe('hide');
       })
     } */
+  // Tabla detalle Ingreso
+  var tbl_incomeDetail
+  if (document.getElementById('tbl-incomeDetail')) {
+    tbl_incomeDetail = $('#tbl-incomeDetail').DataTable({
+      destroy: true,
+      searching: false,
+      ordering: false,
+      responsive: true,
+      info: false,
+      language: {
+        url: '//cdn.datatables.net/plug-ins/1.12.1/i18n/es-ES.json'
+      }
+    });
+  }
+
+  tbl_incomeDetail.columns(1).visible(false);
+  tbl_incomeDetail.columns(6).visible(false);
+
+  // Tabla detalle Salida
+  var tbl_outputDetail = $('#tbl-outputDetail').DataTable({
+    destroy: true,
+    searching: false,
+    ordering: false,
+    responsive: true,
+    language: {
+      url: '//cdn.datatables.net/plug-ins/1.12.1/i18n/es-ES.json'
+    }
+  });
+
+  tbl_outputDetail.columns(1).visible(false);
+
+
+  $(window).on('shown.bs.modal', function (e) {
+    $.fn.dataTable.tables({ visible: true, api: true })
+      .columns.adjust()
+      .responsive.recalc();
+  });
+
+  /* table1.columns.adjust().responsive.recalc(); */
 
   $(document).on('click', '#btnAdd-md-brand', function () {
     $('#mdAdd-brand').modal('show');
@@ -165,6 +236,7 @@ $(document).ready(function () {
   // Ingreso
   $(document).on('click', '#btnAdd-md-income', function () {
     $('#mdAdd-income').modal('show');
+    $('#mdAdd-income').modal();
   });
   // Salida
   $(document).on('click', '#btnAdd-md-output', function () {
@@ -435,10 +507,115 @@ $(document).ready(function () {
     });
   }
 
+  const mBtnAdd_Detail_income = document.getElementById("mbtnAdd-Detail-income");
+
+  const ipt_quantity_income = document.getElementById("insertIpt-quantity-income");
+  const ipt_priceUnit_income = document.getElementById("insertIpt-priceUnit-income");
+  const ipt_priceTotal_income = document.getElementById("insertIpt-priceTotal-income");
+
+  const ipt_quantity_output = document.getElementById("insertIpt-quantity-output");
+  const ipt_priceUnit_output = document.getElementById("insertIpt-priceUnit-output");
+  const ipt_priceTotal_output = document.getElementById("insertIpt-priceTotal-output");
+
+
+  let counterDetail_income = 1;
+
+  $("#insertIpt-quantity-income").keyup(function (event) {
+    // Capturando Valor
+    let val_priceUnit = ipt_priceUnit_income.value;
+    let val_priceTotal = ipt_priceTotal_income.value;
+    // Validaciones de Strin empty
+    rptValid = validStringEmpty(ipt_priceUnit_income, val_priceUnit, '0.00');
+    rptValid = validStringEmpty(ipt_priceTotal_income, val_priceTotal, '0.00');
+  });
+
+  $("#insertIpt-priceUnit-income").keyup(function (event) {
+    // Capturando Valor
+    let val_quantity = ipt_quantity_income.value;
+    let val_priceTotal = ipt_priceTotal_income.value;
+    // Validaciones de Strin empty
+    validStringEmpty(ipt_quantity_income, val_quantity, '0');
+    validStringEmpty(ipt_priceTotal_income, val_priceTotal, '0.00');
+  });
+
+  $("#insertIpt-priceTotal-income").keyup(function (event) {
+    // Capturando Valor
+    let val_quantity = ipt_quantity_income.value;
+    let val_priceUnit = ipt_priceUnit_income.value;
+    // Validaciones de Strin empty
+    validStringEmpty(ipt_quantity_income, val_quantity, '0');
+    validStringEmpty(ipt_priceUnit_income, val_priceUnit, '0.00');
+  });
+
+  function validStringEmpty(selector, value, valueTo) {
+    if (typeof value === 'string' && value.length === 0) {
+      selector.value = valueTo;
+    }
+  }
+
+  // Ejecutar accion Eliminar en responsive
+  /* $(".tbl-incomeDetail").on('click', '.removeRow', function () {
+    tbl_incomeDetail.row($(this)).remove().draw();
+  }); */
+  /* $('#tbl-incomeDetail').on('click', '.removeRow', function() {
+    tbl_incomeDetail.row($(this).parents('tr')).remove().draw();
+}); */
+  $("#tbl-incomeDetail").on("mousedown", ".removeRow", function (e) {
+    tbl_incomeDetail.row($(this).closest("tr")).remove().draw();
+  })
+
+  $(".tbl-incomeDetail").on("mousedown", ".removeRow", function (e) {
+    tbl_incomeDetail.row($(this)).remove().draw();
+  })
+
+  $(".tbl-incomeDetail").on('mousedown.edit', ".editRow i .fa.fa-pencil-square", function (e) {
+    console.log('siuu');
+    $(this).removeClass().addClass("fa fa-envelope-o");
+    var $row = $(this).closest("tr").off("mousedown");
+    var $tds = $row.find("td").not(':first').not(':last');
+
+    $.each($tds, function (i, el) {
+      var txt = $(this).text();
+      $(this).html("").append("<input type='text' value=\"" + txt + "\">");
+    });
+
+  });
+
+  mBtnAdd_Detail_income.addEventListener('click', add_incomeDetail)
+  function add_incomeDetail() {
+    let val_productId = $('#insertIpt-product-income').find(':selected').data('id');
+    let val_product = $('#insertIpt-product-income').find(':selected').val();
+    let val_batchId = $('#insertIpt-product-income').find(':selected').data('id');
+    let val_batch = $('#insertIpt-product-income').find(':selected').val();
+    let val_quantity = $("#insertIpt-quantity-income").val();
+    let val_priceUnit = $("#insertIpt-priceUnit-income").val();
+    let val_priceTotal = $("#insertIpt-priceTotal-income").val();
+
+    if (val_quantity && val_productId) {
+      tbl_incomeDetail.row.add(
+        [
+          counterDetail_income,
+          val_productId,
+          val_product,
+          val_quantity,
+          val_priceUnit,
+          val_priceTotal,
+          val_batchId,
+          '<button class="btn btn-danger removeRow"><i class="fa fa-minus-square" aria-hidden="true"></i></button><button class="btn btn-warning editRow"><i class="fa fa-pencil-square" aria-hidden="true"></i></button>'
+        ]
+      ).draw();
+      counterDetail_income++;
+    }
+    else {
+      toastr.error('Se necesita cantidad', 'Error Detalle');
+    }
+  }
+
   // Agregar un Ingreso
   $('#add_income_form').on('submit', add_income_form);
   function add_income_form(e) {
     e.preventDefault();
+    let form_detalle = tbl_incomeDetail.rows().data();
     let val_product = $('#insertIpt-product-income').find(':selected').data('id');
     var form = $(this),
       data = new FormData(form.get(0));

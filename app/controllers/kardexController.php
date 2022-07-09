@@ -21,6 +21,10 @@ class kardexController extends Controller
 
   function index()
   {
+    $rptNumIngreso = ingresosModel::nIngreso();
+    $numIngreso = str_pad($rptNumIngreso[0]['nIngreso'], 8, "0", STR_PAD_LEFT);
+    $rptNumSalida = salidasModel::nSalida();
+    $numsalida = str_pad($rptNumSalida[0]['nSalida'], 8, "0", STR_PAD_LEFT);
     /* debug(kardexModel::all_general());
     die; */
     $data =
@@ -29,6 +33,8 @@ class kardexController extends Controller
         'msg'   => 'Bienvenido al controlador de "kardex", se ha creado con éxito si ves este mensaje.',
         'padding' => '0px',
         'height' => '100vh',
+        'ningreso' => $numIngreso,
+        'nsalida' => $numsalida,
         'kardex' => kardexModel::all_general()
       ];
 

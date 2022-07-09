@@ -97,7 +97,7 @@
   <div class="clear" style="margin-bottom:40px;"></div>
   <div class="border" style="margin-bottom:30px;"></div>
 </div>
-<?php require_once INCLUDES . 'inc_footer.php'; ?>
 <?php require_once VIEWS . 'ingresos/modals/create.php'; ?>
 <?php require_once VIEWS . 'salidas/modals/create.php'; ?>
 <?php require_once VIEWS . 'productos/modals/create.php'; ?>
+<?php require_once INCLUDES . 'inc_footer.php'; ?>

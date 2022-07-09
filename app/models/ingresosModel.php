@@ -59,5 +59,13 @@ class ingresosModel extends Model {
     $sql = 'SELECT * FROM ingresos WHERE id_ingreso = :id LIMIT 1';
     return ($rows = parent::query($sql, ['id' => $id])) ? $rows[0] : [];
   }
+
+  static function nIngreso()
+  {
+    // Obtenemos ultimo Ingreso
+    $sql = 'SELECT MAX(ig.numero_ingreso) AS nIngreso FROM ingresos AS ig LIMIT 1';
+    return ($rows = parent::query($sql)) ? $rows : [];
+  }
+
 }
 

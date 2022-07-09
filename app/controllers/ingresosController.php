@@ -21,7 +21,9 @@ class ingresosController extends Controller
 
   function index()
   {
-    /* debug(salidasModel::all_paginated());
+    $rptNumIngreso = ingresosModel::nIngreso();
+    $numIngreso = str_pad($rptNumIngreso[0]['nIngreso'], 8, "0", STR_PAD_LEFT);
+    /* debug($numIngreso);
     die; */
     $data =
       [
@@ -29,7 +31,8 @@ class ingresosController extends Controller
         'msg'   => 'Bienvenido al controlador de "ingresos", se ha creado con éxito si ves este mensaje.',
         'padding' => '0px',
         'height' => '100vh',
-        'ingresos' => ingresosModel::all_paginated()
+        'ningreso' => $numIngreso
+        /* 'ingresos' => ingresosModel::all_paginated() */
       ];
 
     // Descomentar vista si requerida
