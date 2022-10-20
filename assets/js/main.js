@@ -36,11 +36,37 @@ $(document).ready(function () {
     });
   }
 
+  function zfill(number, width) {
+    var numberOutput = Math.abs(number); /* Valor absoluto del número */
+    var length = number.toString().length; /* Largo del número */
+    var zero = "0"; /* String de cero */
+
+    if (width <= length) {
+      if (number < 0) {
+        return ("-" + numberOutput.toString());
+      } else {
+        return numberOutput.toString();
+      }
+    } else {
+      if (number < 0) {
+        return ("-" + (zero.repeat(width - length)) + numberOutput.toString());
+      } else {
+        return ((zero.repeat(width - length)) + numberOutput.toString());
+      }
+    }
+  }
+
   ////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////
   ///////// NO REQUERIDOS, SOLO PARA EL PROYECTO DEMO DE GASTOS E INGRESOS
   ////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////
+
+  var totalProducts = 0;
+  var totalAmounts = 0;
+
+  var totalProducts_output = 0;
+  var totalAmounts_output = 0;
 
   $('#insertIpt-brands-product, #insertIpt-categories-product').select2({
     theme: 'bootstrap-5',
@@ -120,7 +146,15 @@ $(document).ready(function () {
     escapeMarkup: function (markup) {
       return markup;
     }
+  }).on('change', function () {
+    var value = $(this).find(":selected").data("id");
+    console.log('Se detecto cambio' + value);
   });
+
+  /* $('#insertIpt-product-output').select2().on('change', function () {
+    var value = $(this).val();
+    console.log('Se detecto cambio');
+  }); */
 
   $('#insertIpt-batch-income').select2({
     theme: 'bootstrap-5',
@@ -138,81 +172,124 @@ $(document).ready(function () {
     }
   });
 
-  /*   get_brands();
-    function get_brands() {
-      var wrapper = $('.wrapper_brands'),
-        hook = 'bee_hook',
-        action = 'get';
-  
-      if (wrapper.length === 0) {
-        return;
+  /* get_brands(); */
+  function get_brands() {
+    console.log('Obteniendo Marcas');
+    var wrapper = $('.wrapper_brands'),
+      hook = 'bee_hook',
+      action = 'get';
+
+    if (wrapper.length === 0) {
+      return;
+    }
+
+    $.ajax({
+      url: 'ajax/get_table_brands',
+      type: 'POST',
+      dataType: 'json',
+      cache: false,
+      data: {
+        hook, action
+      },
+      beforeSend: function () {
+        wrapper.waitMe();
       }
-  
-      $.ajax({
-        url: 'ajax/get_table_brands',
-        type: 'POST',
-        dataType: 'json',
-        cache: false,
-        data: {
-          hook, action
-        },
-        beforeSend: function () {
-          wrapper.waitMe();
-        }
-      }).done(function (res) {
-        if (res.status === 200) {
-          wrapper.html(res.data);
-          //select2All();
-        } else {
-          toastr.error(res.msg, '¡Upss!');
-          wrapper.html(res.msg);
-        }
-      }).fail(function (err) {
-        toastr.error('Hubo un error en la petición', '¡Upss!');
-        wrapper.html('Hubo un error al cargar los productos, intenta más tarde.');
-      }).always(function () {
-        wrapper.waitMe('hide');
-      })
-    } */
+    }).done(function (res) {
+      if (res.status === 200) {
+        wrapper.html(res.data);
+        //select2All();
+      } else {
+        toastr.error(res.msg, '¡Upss!');
+        wrapper.html(res.msg);
+      }
+    }).fail(function (err) {
+      toastr.error('Hubo un error en la petición', '¡Upss!');
+      wrapper.html('Hubo un error al cargar los productos, intenta más tarde.');
+    }).always(function () {
+      wrapper.waitMe('hide');
+    })
+  }
+
   // Tabla detalle Ingreso
   var tbl_incomeDetail
-  if (document.getElementById('tbl-incomeDetail')) {
+  if ($('#tbl-incomeDetail')) {
     tbl_incomeDetail = $('#tbl-incomeDetail').DataTable({
-      destroy: true,
+      // Paginación
+      paging: true,
+      // Paginación defecto
+      pageLength: 5,
       searching: false,
-      ordering: false,
+      select: true,
       responsive: true,
-      info: false,
+      columnDefs: [
+        {
+          searchable: false,
+          orderable: false,
+          targets: 0,
+        },
+      ],
+      order: [[1, 'asc']],
       language: {
         url: '//cdn.datatables.net/plug-ins/1.12.1/i18n/es-ES.json'
       }
     });
+    tbl_incomeDetail.on('order.dt search.dt', function () {
+      let i = 1;
+      tbl_incomeDetail.cells(null, 0, { search: 'applied', order: 'applied' }).every(function (cell) {
+        this.data(i++);
+      });
+    }).draw();
   }
 
+  /* $('.tbl-incomeDetail').on('shown.bs.modal', function () {
+    grid.columns.adjust();
+  })  */
+
+  /* $('.tbl-incomeDetail').on('shown.bs.modal', function () {
+    tbl_incomeDetail.columns.adjust();
+  }) */
+  // Ocultamos ID
   tbl_incomeDetail.columns(1).visible(false);
   tbl_incomeDetail.columns(6).visible(false);
-
-  // Tabla detalle Salida
-  var tbl_outputDetail = $('#tbl-outputDetail').DataTable({
-    destroy: true,
-    searching: false,
-    ordering: false,
-    responsive: true,
-    language: {
-      url: '//cdn.datatables.net/plug-ins/1.12.1/i18n/es-ES.json'
-    }
-  });
-
+  var tbl_outputDetail;
+  if ($('#tbl-incomeDetail')) {
+    // Tabla detalle Salida
+    var tbl_outputDetail = $('#tbl-outputDetail').DataTable({
+      // Paginación
+      paging: true,
+      // Paginación defecto
+      pageLength: 5,
+      searching: false,
+      select: true,
+      responsive: true,
+      olumnDefs: [
+        {
+          searchable: false,
+          orderable: false,
+          targets: 0,
+        },
+      ],
+      order: [[1, 'asc']],
+      language: {
+        url: '//cdn.datatables.net/plug-ins/1.12.1/i18n/es-ES.json'
+      }
+    });
+    tbl_outputDetail.on('order.dt search.dt', function () {
+      let i = 1;
+      tbl_outputDetail.cells(null, 0, { search: 'applied', order: 'applied' }).every(function (cell) {
+        this.data(i++);
+      });
+    }).draw();
+  }
+  // Ocultamos ID
   tbl_outputDetail.columns(1).visible(false);
-
+  tbl_outputDetail.columns(6).visible(false);
 
   $(window).on('shown.bs.modal', function (e) {
     $.fn.dataTable.tables({ visible: true, api: true })
       .columns.adjust()
       .responsive.recalc();
   });
-
-  /* table1.columns.adjust().responsive.recalc(); */
 
   $(document).on('click', '#btnAdd-md-brand', function () {
     $('#mdAdd-brand').modal('show');
@@ -508,6 +585,7 @@ $(document).ready(function () {
   }
 
   const mBtnAdd_Detail_income = document.getElementById("mbtnAdd-Detail-income");
+  const mBtnAdd_Detail_output = document.getElementById("mbtnAdd-Detail-output");
 
   const ipt_quantity_income = document.getElementById("insertIpt-quantity-income");
   const ipt_priceUnit_income = document.getElementById("insertIpt-priceUnit-income");
@@ -517,16 +595,40 @@ $(document).ready(function () {
   const ipt_priceUnit_output = document.getElementById("insertIpt-priceUnit-output");
   const ipt_priceTotal_output = document.getElementById("insertIpt-priceTotal-output");
 
-
-  let counterDetail_income = 1;
-
   $("#insertIpt-quantity-income").keyup(function (event) {
     // Capturando Valor
-    let val_priceUnit = ipt_priceUnit_income.value;
-    let val_priceTotal = ipt_priceTotal_income.value;
+    let val_priceUnit = $("#insertIpt-priceUnit-income").val();
+    let val_priceTotal = $("#insertIpt-priceTotal-income").val();
+
     // Validaciones de Strin empty
-    rptValid = validStringEmpty(ipt_priceUnit_income, val_priceUnit, '0.00');
-    rptValid = validStringEmpty(ipt_priceTotal_income, val_priceTotal, '0.00');
+    let rptValid_priceUnit = validStringEmpty(val_priceUnit);
+    let rptValid_priceTotal = validStringEmpty(val_priceTotal);
+    // Agregar ceros / Calcular
+    rptValid_priceUnit && rptValid_priceTotal ? (
+      $("#insertIpt-priceUnit-income").val(Number.parseFloat('0.00').toFixed(2)),
+      $("#insertIpt-priceTotal-income").val(Number.parseFloat('0.00').toFixed(2))
+    ) : (
+      // Calculando
+      cal_priceTotal = parseFloat($(this).val()) * parseFloat(val_priceUnit),
+      ipt_priceTotal_income.value = Number.parseFloat(cal_priceTotal).toFixed(2)
+    );
+  });
+
+  $("#insertIpt-quantity-income").blur(function () {
+    let val_priceUnit = $("#insertIpt-priceUnit-income").val();
+    let val_priceTotal = $("#insertIpt-priceTotal-income").val();
+    // Validaciones de Strin empty
+    let rptValid_priceUnit = validStringEmpty(val_priceUnit);
+    let rptValid_priceTotal = validStringEmpty(val_priceTotal);
+    // Agregar ceros / Calcular
+    rptValid_priceUnit && rptValid_priceTotal ? (
+      $("#insertIpt-priceUnit-income").val(Number.parseFloat('0.00').toFixed(2)),
+      $("#insertIpt-priceTotal-income").val(Number.parseFloat('0.00').toFixed(2))
+    ) : (
+      // Calculando
+      cal_priceTotal = parseFloat($(this).val()) * parseFloat(val_priceUnit),
+      ipt_priceTotal_income.value = Number.parseFloat(cal_priceTotal).toFixed(2)
+    );
   });
 
   $("#insertIpt-priceUnit-income").keyup(function (event) {
@@ -534,8 +636,25 @@ $(document).ready(function () {
     let val_quantity = ipt_quantity_income.value;
     let val_priceTotal = ipt_priceTotal_income.value;
     // Validaciones de Strin empty
-    validStringEmpty(ipt_quantity_income, val_quantity, '0');
-    validStringEmpty(ipt_priceTotal_income, val_priceTotal, '0.00');
+    let ptValid_quantity = validStringEmpty(val_quantity);
+    let ptValid_priceTotal = validStringEmpty(val_priceTotal);
+    ptValid_quantity && ptValid_priceTotal ? (
+      $("#insertIpt-quantity-income").val(0),
+      $("#insertIpt-priceTotal-income").val(Number.parseFloat('0.00').toFixed(2))
+    ) : (
+      // Calculando
+      cal_priceTotal = parseFloat(val_quantity) * parseFloat($(this).val()),
+      ipt_priceTotal_income.value = Number.parseFloat(cal_priceTotal).toFixed(2)
+    );
+  });
+
+  $("#insertIpt-priceUnit-income").blur(function () {
+    // Capturando Valor
+    let val_quantity = ipt_quantity_income.value;
+    $(this).val(Number.parseFloat($(this).val()).toFixed(2));
+    // Calculando
+    let cal_priceTotal = parseFloat($(this).val()) * parseFloat(val_quantity);
+    ipt_priceTotal_income.value = Number.parseFloat(cal_priceTotal).toFixed(2);
   });
 
   $("#insertIpt-priceTotal-income").keyup(function (event) {
@@ -547,85 +666,100 @@ $(document).ready(function () {
     validStringEmpty(ipt_priceUnit_income, val_priceUnit, '0.00');
   });
 
-  function validStringEmpty(selector, value, valueTo) {
+  $("#insertIpt-priceTotal-income").blur(function () {
+    // Capturando Valor
+    let val_quantity = ipt_quantity_income.value;
+    let val_priceUnit = ipt_priceUnit_income.value;
+    ipt_priceUnit_income.value = Number.parseFloat(val_priceUnit).toFixed(2)
+    $(this).val(Number.parseFloat($(this).val()).toFixed(2));
+    // Calculando
+    let cal_priceUnit = parseFloat($(this).val()) / parseFloat(val_quantity);
+    ipt_priceUnit_income.value = Number.parseFloat(cal_priceUnit).toFixed(2);
+  });
+
+  function validStringEmpty(value) {
     if (typeof value === 'string' && value.length === 0) {
-      selector.value = valueTo;
+      return true;
+    } else {
+      return false;
     }
   }
 
-  // Ejecutar accion Eliminar en responsive
-  /* $(".tbl-incomeDetail").on('click', '.removeRow', function () {
-    tbl_incomeDetail.row($(this)).remove().draw();
-  }); */
-  /* $('#tbl-incomeDetail').on('click', '.removeRow', function() {
-    tbl_incomeDetail.row($(this).parents('tr')).remove().draw();
-}); */
-  $("#tbl-incomeDetail").on("mousedown", ".removeRow", function (e) {
-    tbl_incomeDetail.row($(this).closest("tr")).remove().draw();
-  })
-
-  $(".tbl-incomeDetail").on("mousedown", ".removeRow", function (e) {
-    tbl_incomeDetail.row($(this)).remove().draw();
-  })
-
-  $(".tbl-incomeDetail").on('mousedown.edit', ".editRow i .fa.fa-pencil-square", function (e) {
-    console.log('siuu');
-    $(this).removeClass().addClass("fa fa-envelope-o");
-    var $row = $(this).closest("tr").off("mousedown");
-    var $tds = $row.find("td").not(':first').not(':last');
-
-    $.each($tds, function (i, el) {
-      var txt = $(this).text();
-      $(this).html("").append("<input type='text' value=\"" + txt + "\">");
-    });
-
-  });
-
-  mBtnAdd_Detail_income.addEventListener('click', add_incomeDetail)
-  function add_incomeDetail() {
+  // Agregando Detalle Ingreso
+  $("#mbtnAdd-Detail-income").on("click", add_incomeDetail);
+  function add_incomeDetail(e) {
+    // Capturando valores
     let val_productId = $('#insertIpt-product-income').find(':selected').data('id');
     let val_product = $('#insertIpt-product-income').find(':selected').val();
-    let val_batchId = $('#insertIpt-product-income').find(':selected').data('id');
-    let val_batch = $('#insertIpt-product-income').find(':selected').val();
+    let val_batchId = $('#insertIpt-batch-income').find(':selected').data('id');
+    let val_batch = $('#insertIpt-batch-income').find(':selected').val();
     let val_quantity = $("#insertIpt-quantity-income").val();
     let val_priceUnit = $("#insertIpt-priceUnit-income").val();
     let val_priceTotal = $("#insertIpt-priceTotal-income").val();
 
-    if (val_quantity && val_productId) {
+    totalProducts = parseInt(totalProducts) + parseInt(val_quantity);
+    totalAmounts = parseFloat(totalAmounts) + parseFloat(val_priceTotal);
+
+    $("#totalProducts-income").text(totalProducts);
+    $("#totalAmounts-income").text(Number.parseFloat(totalAmounts).toFixed(2));
+
+    if (val_quantity > 0 && val_productId) {
       tbl_incomeDetail.row.add(
         [
-          counterDetail_income,
+          '',
           val_productId,
           val_product,
           val_quantity,
           val_priceUnit,
           val_priceTotal,
           val_batchId,
-          '<button class="btn btn-danger removeRow"><i class="fa fa-minus-square" aria-hidden="true"></i></button><button class="btn btn-warning editRow"><i class="fa fa-pencil-square" aria-hidden="true"></i></button>'
+          '<button class="btn btn-danger removeRow"><i class="fa fa-minus-square" aria-hidden="true"></i>'
         ]
       ).draw();
-      counterDetail_income++;
     }
     else {
       toastr.error('Se necesita cantidad', 'Error Detalle');
     }
   }
 
+  // Eliminan Detalle Ingreso
+  $('#tbl-incomeDetail tbody').on('click', 'button.removeRow', function () {
+    let rowData = tbl_incomeDetail.row($(this).parents('tr')).data();
+    tbl_incomeDetail.row($(this)).remove().draw();
+    tbl_incomeDetail.row($(this).closest("tr")).remove().draw();
+    totalProducts = parseInt(totalProducts) - parseInt(rowData[3]);
+    totalAmounts = parseFloat(totalAmounts) - parseFloat(rowData[5]);
+    $("#totalProducts-income").text(totalProducts);
+    $("#totalAmounts-income").text(Number.parseFloat(totalAmounts).toFixed(2));
+  });
+
   // Agregar un Ingreso
   $('#add_income_form').on('submit', add_income_form);
   function add_income_form(e) {
     e.preventDefault();
-    let form_detalle = tbl_incomeDetail.rows().data();
-    let val_product = $('#insertIpt-product-income').find(':selected').data('id');
+    // Declaración de Variable
+    let valArray_incomeDetail = [];
+    // Detalle de ingreso
+    let form_detalle_income = tbl_incomeDetail.rows().data();
+    var f = form_detalle_income;
+    for (var i = 0; f.length > i; i++) {
+      var n = f[i].length;
+      valArray_incomeDetail.push({
+        'numeration': f[i][0],
+        'product_id': f[i][1],
+        'quantity': f[i][3],
+        'priceUnit': f[i][4],
+        'priceTotal': f[i][5],
+      });
+    }
+    let val_totalProducts = $("#totalProducts-income").text();
+    let val_totalAmounts = $("#totalAmounts-income").text();
     var form = $(this),
       data = new FormData(form.get(0));
-    data.append("product_id", JSON.stringify(val_product));
-
-    // Validar selección
-    if (!val_product) {
-      toastr.error('Seleccióne Producto', '¡Upss!');
-      return;
-    }
+    // Agregando
+    data.append("detail-income", JSON.stringify(valArray_incomeDetail));
+    data.append("totalProducts-income", JSON.stringify(parseInt(val_totalProducts)));
+    data.append("totalPrice-income", JSON.stringify(parseFloat(val_totalAmounts)));
 
     // AJAX
     $.ajax({
@@ -641,6 +775,12 @@ $(document).ready(function () {
       }
     }).done(function (res) {
       if (res.status === 201) {
+        numSig = res.data.rptSig;
+        console.log(zfill(numSig, 8));
+        $("#insertIpt-number-income").val(zfill(numSig, 8));
+        $("#totalProducts-income").text(0);
+        $("#totalAmounts-income").text('0.00');
+        tbl_incomeDetail.clear().draw();
         toastr.success(res.msg, '¡Bien!');
         /* form.trigger('reset'); */
         /* get_category(); */
@@ -654,10 +794,60 @@ $(document).ready(function () {
     })
   }
 
+  // Agregando Detalle Salida
+  $("#mbtnAdd-Detail-output").on("click", add_outputDetail);
+  function add_outputDetail(e) {
+    // Capturando valores
+    let val_productId = $('#insertIpt-product-output').find(':selected').data('id');
+    let val_product = $('#insertIpt-product-output').find(':selected').val();
+    let val_batchId = $('#insertIpt-batch-output').find(':selected').data('id');
+    let val_batch = $('#insertIpt-batch-output').find(':selected').val();
+    let val_quantity = $("#insertIpt-quantity-output").val();
+    let val_priceUnit = $("#insertIpt-priceUnit-output").val();
+    let val_priceTotal = $("#insertIpt-priceTotal-output").val();
+
+    totalProducts_output = parseInt(totalProducts_output) + parseInt(val_quantity);
+    totalAmounts_output = parseFloat(totalAmounts_output) + parseFloat(val_priceTotal);
+
+    $("#totalProducts-output").text(totalProducts_output);
+    $("#totalAmounts-output").text(Number.parseFloat(totalAmounts_output).toFixed(2));
+
+    if (val_quantity > 0 && val_productId) {
+      tbl_outputDetail.row.add(
+        [
+          '',
+          val_productId,
+          val_product,
+          val_quantity,
+          val_priceUnit,
+          val_priceTotal,
+          val_batchId,
+          '<button class="btn btn-danger removeRow_output"><i class="fa fa-minus-square" aria-hidden="true"></i>'
+        ]
+      ).draw();
+    }
+    else {
+      toastr.error('Se necesita cantidad', 'Error Detalle');
+    }
+  }
+
+  // Eliminan Detalle Salida
+  $('#tbl-outputDetail tbody').on('click', 'button.removeRow_output', function () {
+    let rowData = tbl_outputDetail.row($(this).parents('tr')).data();
+    tbl_outputDetail.row($(this)).remove().draw();
+    tbl_outputDetail.row($(this).closest("tr")).remove().draw();
+    totalProducts_output = parseInt(totalProducts_output) - parseInt(rowData[3]);
+    totalAmounts_output = parseFloat(totalAmounts_output) - parseFloat(rowData[5]);
+    $("#totalProducts-output").text(totalProducts_output);
+    $("#totalAmounts-output").text(Number.parseFloat(totalAmounts_output).toFixed(2));
+  });
+
   // Agregar una salida
   $('#add_output_form').on('submit', add_output_form);
   function add_output_form(e) {
     e.preventDefault();
+    // Declaración de Variable
+    let valArray_outputDetail = [];
     let val_brandId = $('#insertIpt-brands-product').find(':selected').data('id');
     let val_categoryId = $('#insertIpt-categories-product').find(':selected').data('id');
     var form = $(this),

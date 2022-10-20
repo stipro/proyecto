@@ -31,7 +31,7 @@
                             <div class="form-group">
                                 <label for="insertIpt-product-output" class="control-label">Producto <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-sm">
-                                    <select class="form-select form-select-sm" name="product-output" id="insertIpt-product-output" data-placeholder="Escribe para buscar...">
+                                    <select name="product-output" id="insertIpt-product-output" class="form-select form-select-sm" data-placeholder="Escribe para buscar...">
                                         <option></option>
                                         <?php if (empty(get_all_productos())) : ?>
                                             <option value="--0--">--No se obtuvo informacion--</option>
@@ -47,15 +47,23 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-8 col-sm-6 col-md-4 col-lg-6">
+                        <div class="col-9 col-sm-6 col-md-4 col-lg-6">
                             <div class="form-group">
                                 <label for="insertIpt-batch-output" class="control-label">Lote <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-sm">
                                     <select name="batch-output" id="insertIpt-batch-output" class="form-select form-select-sm" data-placeholder="Escribe para buscar...">
-                                        <option value="sin Lote">sin Lote</option>
+                                        <option value="sin Lote" data-id="1">sin Lote</option>
                                     </select>
                                     <button class="btn btn-outline-secondary form-control-sm" type="button" id="btnUpdate-batch"><i class="bi bi-arrow-clockwise"></i></button>
                                     <button class="btn btn-outline-secondary form-control-sm" type="button" id="btnAdd-md-batch"><i class="bi bi-plus-lg"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-3 col-sm-3 col-md-2 col-lg-2">
+                            <div class="form-group">
+                                <label for="insertIpt-stock-output" class="control-label">Stock <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-sm">
+                                    <input type="text" name="stock-output" id="insertIpt-stock-output" class="form-control form-control-sm" aria-label="Nombre" value="0" placeholder="Stock" readonly>
                                 </div>
                             </div>
                         </div>
@@ -67,7 +75,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-6 col-sm-3 col-md-2 col-lg-2">
+                        <div class="col-4 col-sm-3 col-md-2 col-lg-2">
                             <div class="form-group">
                                 <label for="insertIpt-priceUnit-output" class="control-label">Precio Unid <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-sm">
@@ -75,11 +83,11 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-6 col-sm-3 col-lg-2">
+                        <div class="col-4 col-sm-3 col-lg-2">
                             <div class="form-group">
-                                <label for="insertIpt-price-output" class="control-label">Precio Total<span class="text-danger">*</span></label>
+                                <label for="insertIpt-priceTotal-output" class="control-label">Precio Total<span class="text-danger">*</span></label>
                                 <div class="input-group input-group-sm">
-                                    <input type="text" name="price-output" id="insertIpt-price-output" class="form-control form-control-sm" aria-label="Nombre" value="0.00" placeholder="Error" autocomplete="off" disabled>
+                                    <input type="text" name="priceTotal-output" id="insertIpt-priceTotal-output" class="form-control form-control-sm" aria-label="Nombre" value="0.00" placeholder="Error" autocomplete="off" disabled>
                                     <button class="btn btn-outline-secondary form-control-sm" type="button" id="">S/</button>
                                 </div>
                             </div>
@@ -98,6 +106,8 @@
                                     <th>Cantidad</th>
                                     <th>Precio Unit</th>
                                     <th>Importe Total</th>
+                                    <th>idLote</th>
+                                    <th>Acciónes</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -107,11 +117,15 @@
                     <div class="row">
                         <div class="col-sm-7"></div>
                         <div class="col-sm-5 ml-auto">
-                            <table class="table table-sm table-clear">
+                            <table id="tbl-totals-output" class="table table-sm table-clear">
                                 <tbody>
                                     <tr>
+                                        <td class="left">Total Productos</td>
+                                        <td class="text-right bg-light" id="totalProducts-output">0.00</td>
+                                    </tr>
+                                    <tr>
                                         <td class="left">Valor Venta</td>
-                                        <td class="text-right bg-light">0.00</td>
+                                        <td class="text-right bg-light" id="totalAmounts-output">0.00</td>
                                     </tr>
                                     <tr>
                                         <td class="left">I.G.V.</td>

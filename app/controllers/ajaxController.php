@@ -300,31 +300,65 @@ class ajaxController extends Controller
   function add_income_form()
   {
     try {
-      $producto_id = clean($_POST['product_id']);
-      $cantidad_ingreso = clean($_POST['quantity-income']);
-      $precio_ingreso = clean($_POST['price-income']);
+      $numero_ingreso = clean($_POST['number-income']);
+      $fechaMovimiento_ingreso = clean($_POST['date-income']);
+      $cantidadTotal_ingreso = clean($_POST['totalProducts-income']);
+      $precioTotal_ingreso = floatval(clean($_POST['totalPrice-income']));
+      $detalle_ingreso = json_decode($_POST['detail-income'], true);
+      $tipoMovimiento_id = 1;
+      $almacen_id = 1;
 
-      if (!$cantidad_ingreso) {
-        json_output(json_build(400, null, 'Ingrese cantidad'));
+      if (!$fechaMovimiento_ingreso) {
+        json_output(json_build(400, null, 'Ingrese fecha de Ingreso'));
       }
-      if (!$precio_ingreso) {
-        json_output(json_build(400, null, 'Ingrese precio'));
+      if (!$detalle_ingreso) {
+        json_output(json_build(400, null, 'Ingrese datos'));
       }
+      $dataMovimientos =
+        [
+          'tipoMovimiento_id'            => $tipoMovimiento_id,
+          'almacen_id'                  => $almacen_id,
+          'fecha_movimiento'            => $fechaMovimiento_ingreso,
+        ];
+
+      if (!$id = movimientosModel::add(movimientosModel::$t1, $dataMovimientos)) {
+        json_output(json_build(400, null, 'Hubo error al guardar el movimiento'));
+      }
+      $rptJson_movimientoUltimo = movimientosModel::lastMovement();
+      $movimientoUltimo = $rptJson_movimientoUltimo[0]['mv'];
       $data =
         [
-          'producto_id'                  => $producto_id,
-          'cantidad_ingreso'             => $cantidad_ingreso,
-          'precio_ingreso'               => $precio_ingreso,
+          'numero_ingreso'              => $numero_ingreso,
+          'movimiento_id'               => $movimientoUltimo,
+          'cantidadTotal_ingreso'       => $cantidadTotal_ingreso,
+          'precioTotal_ingreso'         => $precioTotal_ingreso,
           'dateCreation_ingreso'        => now(),
           'dateUpdate_ingreso'          => now()
         ];
-      if (!$id = ingresosModel::add(ingresosModel::$t1, $data)) {
-        json_output(json_build(400, null, 'Hubo error al guardar el registro'));
+      if (!$id_ingreso = ingresosModel::add(ingresosModel::$t1, $data)) {
+        json_output(json_build(400, null, 'Hubo error al guardar el ingreso'));
+      }
+      foreach ($detalle_ingreso as $item) {
+        $ingresoDetalle =
+          [
+            'ingreso_id'                     => $numero_ingreso,
+            /* 'lote_ingresoDetalle'            => 1, */
+            'producto_id'                    => $item['product_id'],
+            'cantidad_ingresoDetalle'        => $item['quantity'],
+            'precioUnitario_ingresoDetalle'  => $item['priceUnit'],
+            'precioTotal_ingresoDetalle'     => $item['priceTotal'],
+          ];
+        if (!$id = ingreso_detalleModel::add(ingreso_detalleModel::$t1, $ingresoDetalle)) {
+          json_output(json_build(400, null, 'Hubo error al guardar el detalle'));
+        }
       }
 
       // se guardó con éxito
-      $productos = ingresosModel::by_id($id);
-      json_output(json_build(201, $productos, 'Producto agregado con exito. '));
+      $productos = ingreso_detalleModel::by_id($id);
+      $id_ingreso++;
+      $productos['rptSig'] = $id_ingreso;
+      /* var_dump($productos); */
+      json_output(json_build(201, $productos, 'Ingreso agregado con exito. '));
     } catch (Exception $e) {
       json_output(json_build(400, null, $e->getMessage()));
     } catch (PDOException $e) {

@@ -3,7 +3,6 @@
     <div class="modal-dialog modal-lg">
         <form class="row g-3" id="add_product_form">
             <div class="modal-content">
-
                 <div class="modal-header">
                     <h5 class="modal-title" id="mdAdd-productLabel">[Creación] Productos</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

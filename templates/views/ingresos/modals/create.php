@@ -13,7 +13,7 @@
                             <div class="form-group">
                                 <label for="insertIpt-number-income" class="control-label">N° Ingreso <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-sm">
-                                    <input type="text" name="number-income" id="insertIpt-number-income" class="form-control form-control-sm" aria-label="Nombre" value="<?php echo $d->ningreso; ?>" placeholder="Error" disabled>
+                                    <input type="text" name="number-income" id="insertIpt-number-income" class="form-control form-control-sm disabled" value="<?php echo $d->ningreso; ?>" readonly>
                                 </div>
                             </div>
                         </div>
@@ -21,7 +21,7 @@
                             <div class="form-group">
                                 <label for="insertIpt-date-income" class="control-label">F. Ingreso <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-sm">
-                                    <input type="date" name="date-income" id="insertIpt-date-income" class="form-control form-control-sm" aria-label="Nombre" value="<?php echo date('Y-m-d'); ?>">
+                                    <input type="date" name="date-income" id="insertIpt-date-income" class="form-control form-control-sm" value="<?php echo date('Y-m-d'); ?>">
                                 </div>
                             </div>
                         </div>
@@ -52,10 +52,18 @@
                                 <label for="insertIpt-batch-income" class="control-label">Lote <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-sm">
                                     <select name="batch-income" id="insertIpt-batch-income" class="form-select form-select-sm" data-placeholder="Escribe para buscar...">
-                                        <option value="sin Lote">sin Lote</option>
+                                        <option value="sin Lote" data-id="1">sin Lote</option>
                                     </select>
                                     <button class="btn btn-outline-secondary form-control-sm" type="button" id="btnUpdate-batch"><i class="bi bi-arrow-clockwise"></i></button>
                                     <button class="btn btn-outline-secondary form-control-sm" type="button" id="btnAdd-md-batch"><i class="bi bi-plus-lg"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-3 col-sm-3 col-md-2 col-lg-2">
+                            <div class="form-group">
+                                <label for="insertIpt-stock-income" class="control-label">Stock <span class="text-danger">*</span></label>
+                                <div class="input-group input-group-sm">
+                                    <input type="text" name="stock-income" id="insertIpt-stock-income" class="form-control form-control-sm" aria-label="Nombre" value="0" placeholder="Stock" readonly>
                                 </div>
                             </div>
                         </div>
@@ -63,25 +71,25 @@
                             <div class="form-group">
                                 <label for="insertIpt-quantity-income" class="control-label">Cantidad <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-sm">
-                                    <input type="text" name="quantity-income" id="insertIpt-quantity-income" class="form-control form-control-sm" aria-label="Nombre" value="" placeholder="Ingrese Cantidad" autofocus autocomplete="off">
+                                    <input type="text" name="quantity-income" id="insertIpt-quantity-income" class="form-control form-control-sm" value="" placeholder="Ingrese Cantidad" autofocus autocomplete="off">
                                 </div>
                             </div>
                         </div>
-                        <div class="col-6 col-sm-3 col-md-2 col-lg-2">
+                        <div class="col-4 col-sm-3 col-md-2 col-lg-2">
                             <div class="form-group">
                                 <label for="insertIpt-priceUnit-income" class="control-label">Precio Unid <span class="text-danger">*</span></label>
                                 <div class="input-group input-group-sm">
-                                    <input type="text" name="priceUnit-income" id="insertIpt-priceUnit-income" class="form-control form-control-sm" aria-label="Nombre" value="" placeholder="Ingrese Precio Unid" autofocus autocomplete="off">
+                                    <input type="text" name="priceUnit-income" id="insertIpt-priceUnit-income" class="form-control form-control-sm" value="" placeholder="Ingrese Precio Unid" autofocus autocomplete="off">
                                 </div>
                             </div>
                         </div>
-                        <div class="col-6 col-sm-3 col-lg-2">
+                        <div class="col-4 col-sm-3 col-lg-2">
                             <div class="form-group">
                                 <label for="insertIpt-priceTotal-income" class="control-label">Precio Total
                                     <!-- PEN (Sol peruano) --><span class="text-danger">*</span>
                                 </label>
                                 <div class="input-group input-group-sm">
-                                    <input type="text" name="priceTotal-income" id="insertIpt-priceTotal-income" class="form-control form-control-sm" aria-label="Nombre" value="" placeholder="Ingrese Precio" autofocus autocomplete="off">
+                                    <input type="text" name="priceTotal-income" id="insertIpt-priceTotal-income" class="form-control form-control-sm" value="" placeholder="Ingrese Precio" autofocus autocomplete="off">
                                     <button class="btn btn-outline-secondary form-control-sm" type="button" id="">S/</button>
                                 </div>
                             </div>
@@ -90,33 +98,38 @@
                             <button type="button" class="btn btn-outline-success btn-sm mt-1" id="mbtnAdd-Detail-income">Agregar</button>
                         </div>
                     </div>
-                    <div class="wrapper-incomeDetail table-responsive m-1">
-                        <table id="tbl-incomeDetail" class="table table-striped table-hover dt-responsive tbl-incomeDetail" style="width:100%">
-                            <thead>
-                                <tr>
-                                    <th>N°</th>
-                                    <th>idProducto</th>
-                                    <th>Descripción</th>
-                                    <th>Cantidad</th>
-                                    <th>Precio Unit</th>
-                                    <th>Importe Total</th>
-                                    <th>idLote</th>
-                                    <th>Acciónes</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                            </tbody>
-                        </table>
+                    <div class="row">
+                        <div class="wrapper-incomeDetail table-responsive m-1 ">
+                            <table id="tbl-incomeDetail" class="table table-striped table-bordered dt-responsive nowrap responsive nowrap tbl-incomeDetail" style="width:100%;">
+                                <thead>
+                                    <tr>
+                                        <th>N°</th>
+                                        <th>idProducto</th>
+                                        <th>Descripción</th>
+                                        <th>Cantidad</th>
+                                        <th>Precio Unit</th>
+                                        <th>Importe Total</th>
+                                        <th>idLote</th>
+                                        <th>Acciónes</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
-
                     <div class="row">
                         <div class="col-sm-7"></div>
                         <div class="col-sm-5 ml-auto">
-                            <table class="table table-sm table-clear">
+                            <table id="tbl-totals-income" class="table table-sm table-clear">
                                 <tbody>
                                     <tr>
+                                        <td class="left">Total Productos</td>
+                                        <td class="text-right bg-light" id="totalProducts-income">0.00</td>
+                                    </tr>
+                                    <tr>
                                         <td class="left">Valor Venta</td>
-                                        <td class="text-right bg-light">0.00</td>
+                                        <td class="text-right bg-light" id="totalAmounts-income">0.00</td>
                                     </tr>
                                     <tr>
                                         <td class="left">I.G.V.</td>

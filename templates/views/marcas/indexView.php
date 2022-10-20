@@ -75,5 +75,5 @@
   <div class="clear" style="margin-bottom:40px;"></div>
   <div class="border" style="margin-bottom:30px;"></div>
 </div>
-<?php require_once INCLUDES . 'inc_footer.php'; ?>
 <?php require_once VIEWS . 'marcas/modals/create.php'; ?>
+<?php require_once INCLUDES . 'inc_footer.php'; ?>
